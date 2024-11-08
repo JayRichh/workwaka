@@ -1,101 +1,149 @@
-import Image from "next/image";
+// src/app/page.tsx
+
+'use client';
+
+import { useState } from 'react';
+import { Tab } from '@headlessui/react';
+import { JobApplication } from '../types';
+import { JobList } from '../components/JobList';
+import { JobForm } from '../components/JobForm';
+import { Reports } from '../components/Reports';
+import { Calendar } from '../components/Calendar';
+import { Modal } from '../components/Modal';
+import {
+  PlusIcon,
+  ChartBarIcon,
+  CalendarIcon,
+  ClipboardIcon,
+} from '@heroicons/react/24/outline';
+
+function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [selectedJob, setSelectedJob] = useState<JobApplication | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleAddNew = (date?: Date) => {
+    setSelectedJob(null);
+    setSelectedDate(date || null);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = () => {
+    setSelectedJob(null);
+    setSelectedDate(null);
+    setIsModalOpen(false);
+  };
+
+  const handleJobSelect = (job: JobApplication) => {
+    setSelectedJob(job);
+    setSelectedDate(null);
+    setIsModalOpen(true);
+  };
+
+  const tabs = [
+    { name: 'applications', icon: ClipboardIcon },
+    { name: 'calendar', icon: CalendarIcon },
+    { name: 'reports', icon: ChartBarIcon },
+  ];
+
+  return (
+    <div className="min-h-screen">
+      <header className="bg-gray-900 shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-semibold text-white">WorkWaka</h1>
+              <p className="mt-1 text-sm text-gray-400">
+                Track and manage your job applications
+              </p>
+            </div>
+            <button
+              onClick={() => handleAddNew()}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium btn-primary"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Application
+            </button>
+          </div>
         </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Tab.Group>
+          <Tab.List className="flex space-x-1 rounded-xl bg-gray-800 p-1 shadow">
+            {tabs.map((tab) => (
+              <Tab
+                key={tab.name}
+                className={({ selected }) =>
+                  classNames(
+                    'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
+                    'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
+                    'flex items-center justify-center gap-2',
+                    selected
+                      ? 'bg-blue-600 text-white shadow'
+                      : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                  )
+                }
+              >
+                <tab.icon className="h-5 w-5" aria-hidden="true" />
+                <span>{tab.name}</span>
+              </Tab>
+            ))}
+          </Tab.List>
+          <Tab.Panels className="mt-4">
+            <Tab.Panel
+              className={classNames(
+                'bg-gray-900 rounded-lg shadow',
+                'transform transition-all duration-200 ease-in-out',
+                'translate-y-0 opacity-100',
+                'ui-not-selected:translate-y-2 ui-not-selected:opacity-0'
+              )}
+            >
+              <JobList onSelect={handleJobSelect} />
+            </Tab.Panel>
+            <Tab.Panel
+              className={classNames(
+                'bg-gray-900 rounded-lg shadow',
+                'transform transition-all duration-200 ease-in-out',
+                'translate-y-0 opacity-100',
+                'ui-not-selected:translate-y-2 ui-not-selected:opacity-0'
+              )}
+            >
+              <Calendar
+                onAddApplication={handleAddNew}
+                onSelectApplication={handleJobSelect}
+              />
+            </Tab.Panel>
+            <Tab.Panel
+              className={classNames(
+                'bg-gray-900 rounded-lg shadow',
+                'transform transition-all duration-200 ease-in-out',
+                'translate-y-0 opacity-100',
+                'ui-not-selected:translate-y-2 ui-not-selected:opacity-0'
+              )}
+            >
+              <Reports />
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={selectedJob ? 'Edit Application' : 'New Application'}
+      >
+        <JobForm
+          job={selectedJob}
+          initialDate={selectedDate}
+          onSave={handleSave}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      </Modal>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
