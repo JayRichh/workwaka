@@ -65,7 +65,7 @@ export default function Home() {
                 />
               </div>
               <div className="text-center sm:text-left">
-                <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">theWorkWaka</h1>
+                <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mt-3"><i className='text-gray-500'>the</i>WorkWaka</h1>
                 <p className="text-base sm:text-lg text-gray-500">
                   Track and manage your job applications
                 </p>

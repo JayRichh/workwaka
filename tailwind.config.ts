@@ -8,6 +8,11 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-inter)"],
+        mono: ["var(--font-jetbrains)"],
+      },
+
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",

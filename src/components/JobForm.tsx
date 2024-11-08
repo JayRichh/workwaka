@@ -237,137 +237,139 @@ export function JobForm({ job, initialDate, onSave, onCancel }: JobFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 max-w-7xl mx-auto px-2 sm:px-4">
-      {/* Basic Information Section */}
-      <div className="space-y-4 sm:space-y-6">
-        <SectionHeader title="Basic Information" />
-        <FormSection>
-          <RequiredFieldsForm 
-            formData={formData} 
-            onUpdate={handleInputChange} 
-          />
-        </FormSection>
-      </div>
-
-      {/* Application Details Section */}
-      <div className="space-y-4 sm:space-y-6">
-        <SectionHeader title="Application Details" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+    <form onSubmit={handleSubmit} className="flex flex-col">
+      <div className="flex-1 overflow-y-auto  min-w-full space-y-4 sm:space-y-6 max-w-7xl mx-auto px-2 sm:px-4 pb-24">
+        {/* Basic Information Section */}
+        <div className="space-y-4 sm:space-y-6">
+          <SectionHeader title="Basic Information" />
           <FormSection>
-            <DatesAndPriorityForm 
+            <RequiredFieldsForm 
               formData={formData} 
               onUpdate={handleInputChange} 
             />
           </FormSection>
-          <FormSection>
-            <RequiredDocumentsForm
-              documents={formData.requiredDocuments!}
-              onUpdate={handleRequiredDocumentsChange}
-            />
-          </FormSection>
         </div>
-      </div>
 
-      {/* Notes and Tags Section */}
-      <div className="space-y-4 sm:space-y-6">
-        <SectionHeader title="Notes & Tags" />
-        <FormSection>
-          <TagsAndNotesForm 
-            formData={formData} 
-            onUpdate={handleInputChange}
-            onTagsChange={handleTagsChange}
-          />
-        </FormSection>
-      </div>
-
-      {/* Contacts Section */}
-      <div className="space-y-4 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-4">
-          <SectionHeader title="Contacts" />
-          <button
-            type="button"
-            onClick={handleAddContact}
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-transparent rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-          >
-            + Add Contact
-          </button>
-        </div>
-        <FormSection className="space-y-4">
-          {formData.contacts.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400 text-center py-4">No contacts added yet</p>
-          ) : (
-            formData.contacts.map((contact) => (
-              <ContactForm
-                key={contact.id}
-                contact={contact}
-                onUpdate={handleContactChange}
-                onRemove={handleRemoveContact}
-              />
-            ))
-          )}
-        </FormSection>
-      </div>
-
-      {/* Interview Stages Section */}
-      <div className="space-y-4 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-4">
-          <SectionHeader title="Interview Stages" />
-          <button
-            type="button"
-            onClick={handleAddInterview}
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-transparent rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-          >
-            + Add Interview
-          </button>
-        </div>
-        <FormSection className="space-y-4">
-          {formData.interviewStages.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400 text-center py-4">No interviews scheduled yet</p>
-          ) : (
-            formData.interviewStages.map((stage) => (
-              <InterviewStageForm
-                key={stage.id}
-                stage={stage}
-                onUpdate={handleInterviewChange}
-                onRemove={handleRemoveInterview}
-              />
-            ))
-          )}
-        </FormSection>
-      </div>
-
-      {/* Additional Details Section */}
-      <div className="space-y-4 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-4">
-          <SectionHeader title="Additional Details" />
-          <button
-            type="button"
-            onClick={() => setShowOptional(!showOptional)}
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400"
-          >
-            {showOptional ? 'Hide' : 'Show'} Details
-          </button>
-        </div>
-        {showOptional && (
+        {/* Application Details Section */}
+        <div className="space-y-4 sm:space-y-6">
+          <SectionHeader title="Application Details" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <FormSection>
-              <OptionalFieldsForm 
+              <DatesAndPriorityForm 
                 formData={formData} 
                 onUpdate={handleInputChange} 
               />
             </FormSection>
             <FormSection>
-              <SalaryForm
-                salary={formData.salary || INITIAL_SALARY}
-                onUpdate={handleSalaryChange}
+              <RequiredDocumentsForm
+                documents={formData.requiredDocuments!}
+                onUpdate={handleRequiredDocumentsChange}
               />
             </FormSection>
           </div>
-        )}
+        </div>
+
+        {/* Notes and Tags Section */}
+        <div className="space-y-4 sm:space-y-6">
+          <SectionHeader title="Notes & Tags" />
+          <FormSection>
+            <TagsAndNotesForm 
+              formData={formData} 
+              onUpdate={handleInputChange}
+              onTagsChange={handleTagsChange}
+            />
+          </FormSection>
+        </div>
+
+        {/* Contacts Section */}
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-4">
+            <SectionHeader title="Contacts" />
+            <button
+              type="button"
+              onClick={handleAddContact}
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-transparent rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            >
+              + Add Contact
+            </button>
+          </div>
+          <FormSection className="space-y-4">
+            {formData.contacts.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No contacts added yet</p>
+            ) : (
+              formData.contacts.map((contact) => (
+                <ContactForm
+                  key={contact.id}
+                  contact={contact}
+                  onUpdate={handleContactChange}
+                  onRemove={handleRemoveContact}
+                />
+              ))
+            )}
+          </FormSection>
+        </div>
+
+        {/* Interview Stages Section */}
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-4">
+            <SectionHeader title="Interview Stages" />
+            <button
+              type="button"
+              onClick={handleAddInterview}
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-transparent rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            >
+              + Add Interview
+            </button>
+          </div>
+          <FormSection className="space-y-4">
+            {formData.interviewStages.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No interviews scheduled yet</p>
+            ) : (
+              formData.interviewStages.map((stage) => (
+                <InterviewStageForm
+                  key={stage.id}
+                  stage={stage}
+                  onUpdate={handleInterviewChange}
+                  onRemove={handleRemoveInterview}
+                />
+              ))
+            )}
+          </FormSection>
+        </div>
+
+        {/* Additional Details Section */}
+        <div className="space-y-4 sm:space-y-6 ">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-4">
+            <SectionHeader title="Additional Details" />
+            <button
+              type="button"
+              onClick={() => setShowOptional(!showOptional)}
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400"
+            >
+              {showOptional ? 'Hide' : 'Show'} Details
+            </button>
+          </div>
+          {showOptional && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <FormSection>
+                <OptionalFieldsForm 
+                  formData={formData} 
+                  onUpdate={handleInputChange} 
+                />
+              </FormSection>
+              <FormSection>
+                <SalaryForm
+                  salary={formData.salary || INITIAL_SALARY}
+                  onUpdate={handleSalaryChange}
+                />
+              </FormSection>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Form Actions */}
-      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
+      {/* Form Actions - Fixed at bottom */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 sm:p-6 flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
         <button
           type="button"
           onClick={onCancel}
