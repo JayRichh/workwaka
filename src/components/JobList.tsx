@@ -151,8 +151,8 @@ export function JobList({ onSelect }: JobListProps) {
   return (
     <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
       <div className="p-4 space-y-4">
-        <div className="flex flex-wrap gap-4 items-center justify-between">
-          <div className="flex-1 min-w-[300px] relative">
+        <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+          <div className="flex-1 relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
             </div>
@@ -164,7 +164,7 @@ export function JobList({ onSelect }: JobListProps) {
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
             />
           </div>
-          <div className="flex gap-4 items-center">
+          <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
             <select
               className="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-1.5 pl-3 pr-10 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
               value={itemsPerPage}
@@ -178,55 +178,13 @@ export function JobList({ onSelect }: JobListProps) {
             </select>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <FunnelIcon className="h-5 w-5 mr-1" aria-hidden="true" />
               Filters
             </button>
           </div>
         </div>
-
-        {Object.entries(filters).some(([key, value]) => 
-          value && key !== 'dateRange' && (key !== 'remote' || value !== null)
-        ) && (
-          <div className="flex flex-wrap gap-2">
-            {filters.search && (
-              <FilterBadge
-                label="Search"
-                value={filters.search}
-                onRemove={() => setFilters(prev => ({ ...prev, search: '' }))}
-              />
-            )}
-            {filters.status && (
-              <FilterBadge
-                label="Status"
-                value={filters.status.replace('_', ' ')}
-                onRemove={() => setFilters(prev => ({ ...prev, status: '' }))}
-              />
-            )}
-            {filters.jobType && (
-              <FilterBadge
-                label="Job Type"
-                value={filters.jobType.replace('_', ' ')}
-                onRemove={() => setFilters(prev => ({ ...prev, jobType: '' }))}
-              />
-            )}
-            {filters.companySize && (
-              <FilterBadge
-                label="Company Size"
-                value={filters.companySize}
-                onRemove={() => setFilters(prev => ({ ...prev, companySize: '' }))}
-              />
-            )}
-            {filters.remote !== null && (
-              <FilterBadge
-                label="Remote"
-                value={filters.remote ? 'Yes' : 'No'}
-                onRemove={() => setFilters(prev => ({ ...prev, remote: null }))}
-              />
-            )}
-          </div>
-        )}
 
         {showFilters && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -281,13 +239,48 @@ export function JobList({ onSelect }: JobListProps) {
           value && key !== 'dateRange' && (key !== 'remote' || value !== null)
         ) && (
           <div className="flex flex-wrap gap-2">
-            {/* ... (filter badges remain the same) ... */}
+            {filters.search && (
+              <FilterBadge
+                label="Search"
+                value={filters.search}
+                onRemove={() => setFilters(prev => ({ ...prev, search: '' }))}
+              />
+            )}
+            {filters.status && (
+              <FilterBadge
+                label="Status"
+                value={filters.status.replace('_', ' ')}
+                onRemove={() => setFilters(prev => ({ ...prev, status: '' }))}
+              />
+            )}
+            {filters.jobType && (
+              <FilterBadge
+                label="Job Type"
+                value={filters.jobType.replace('_', ' ')}
+                onRemove={() => setFilters(prev => ({ ...prev, jobType: '' }))}
+              />
+            )}
+            {filters.companySize && (
+              <FilterBadge
+                label="Company Size"
+                value={filters.companySize}
+                onRemove={() => setFilters(prev => ({ ...prev, companySize: '' }))}
+              />
+            )}
+            {filters.remote !== null && (
+              <FilterBadge
+                label="Remote"
+                value={filters.remote ? 'Yes' : 'No'}
+                onRemove={() => setFilters(prev => ({ ...prev, remote: null }))}
+              />
+            )}
           </div>
         )}
       </div>
 
       <div className="border-t border-gray-200 dark:border-gray-700">
-        <div className="px-4 py-3 grid grid-cols-12 gap-4 bg-gray-50 dark:bg-gray-750">
+        {/* Header - Hidden on mobile, shown on larger screens */}
+        <div className="hidden sm:grid sm:grid-cols-12 sm:gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-750">
           <div className="col-span-4 flex items-center cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-100" onClick={() => handleSort('jobTitle')}>
             Job Title
             <SortIcon active={sortConfig.key === 'jobTitle'} direction={sortConfig.direction} />
@@ -308,33 +301,58 @@ export function JobList({ onSelect }: JobListProps) {
           {paginatedJobs.map((job) => (
             <div
               key={job.id}
-              className="group px-4 py-3 grid grid-cols-12 gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer relative transition-colors duration-200"
+              className="group px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer relative transition-colors duration-200"
               onClick={() => onSelect(job)}
             >
-              <div className="col-span-4">
-                <div className="font-medium text-gray-900 dark:text-gray-100">{job.jobTitle}</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">{job.jobType.replace('_', ' ')}</div>
+              {/* Mobile Layout */}
+              <div className="sm:hidden space-y-2">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">{job.jobTitle}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{job.companyName}</div>
+                  </div>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[job.status].bg} ${STATUS_COLORS[job.status].text}`}>
+                    {job.status.replace('_', ' ')}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <div className="text-gray-500 dark:text-gray-400">
+                    {format(new Date(job.dateApplied), 'MMM d, yyyy')}
+                  </div>
+                  <div className="text-gray-900 dark:text-gray-100">
+                    {job.location} {job.remote && '(Remote)'}
+                  </div>
+                </div>
               </div>
-              <div className="col-span-2">
-                <div className="text-gray-900 dark:text-gray-100">{job.companyName}</div>
-                {job.companySize && (
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{job.companySize}</div>
-                )}
+
+              {/* Desktop Layout */}
+              <div className="hidden sm:grid sm:grid-cols-12 sm:gap-4">
+                <div className="col-span-4">
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{job.jobTitle}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{job.jobType.replace('_', ' ')}</div>
+                </div>
+                <div className="col-span-2">
+                  <div className="text-gray-900 dark:text-gray-100">{job.companyName}</div>
+                  {job.companySize && (
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{job.companySize}</div>
+                  )}
+                </div>
+                <div className="col-span-2">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[job.status].bg} ${STATUS_COLORS[job.status].text}`}>
+                    {job.status.replace('_', ' ')}
+                  </span>
+                </div>
+                <div className="col-span-2 text-gray-500 dark:text-gray-400">
+                  {format(new Date(job.dateApplied), 'MMM d, yyyy')}
+                </div>
+                <div className="col-span-2">
+                  <div className="text-gray-900 dark:text-gray-100">{job.location}</div>
+                  {job.remote && (
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Remote</div>
+                  )}
+                </div>
               </div>
-              <div className="col-span-2">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[job.status].bg} ${STATUS_COLORS[job.status].text}`}>
-                  {job.status.replace('_', ' ')}
-                </span>
-              </div>
-              <div className="col-span-2 text-gray-500 dark:text-gray-400">
-                {format(new Date(job.dateApplied), 'MMM d, yyyy')}
-              </div>
-              <div className="col-span-2">
-                <div className="text-gray-900 dark:text-gray-100">{job.location}</div>
-                {job.remote && (
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Remote</div>
-                )}
-              </div>
+
               <button
                 onClick={(e) => handleDelete(e, job.id)}
                 className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/50 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200"

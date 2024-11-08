@@ -52,7 +52,7 @@ const INITIAL_STATE: JobApplication = {
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+    <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
       {title}
     </h2>
   );
@@ -60,7 +60,7 @@ function SectionHeader({ title }: { title: string }) {
 
 function FormSection({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 ${className}`}>
+    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 sm:p-6 ${className}`}>
       {children}
     </div>
   );
@@ -237,9 +237,9 @@ export function JobForm({ job, initialDate, onSave, onCancel }: JobFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-7xl mx-auto">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 max-w-7xl mx-auto px-2 sm:px-4">
       {/* Basic Information Section */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <SectionHeader title="Basic Information" />
         <FormSection>
           <RequiredFieldsForm 
@@ -250,9 +250,9 @@ export function JobForm({ job, initialDate, onSave, onCancel }: JobFormProps) {
       </div>
 
       {/* Application Details Section */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <SectionHeader title="Application Details" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <FormSection>
             <DatesAndPriorityForm 
               formData={formData} 
@@ -269,7 +269,7 @@ export function JobForm({ job, initialDate, onSave, onCancel }: JobFormProps) {
       </div>
 
       {/* Notes and Tags Section */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <SectionHeader title="Notes & Tags" />
         <FormSection>
           <TagsAndNotesForm 
@@ -281,13 +281,13 @@ export function JobForm({ job, initialDate, onSave, onCancel }: JobFormProps) {
       </div>
 
       {/* Contacts Section */}
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-4">
           <SectionHeader title="Contacts" />
           <button
             type="button"
             onClick={handleAddContact}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-transparent rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-transparent rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
           >
             + Add Contact
           </button>
@@ -309,13 +309,13 @@ export function JobForm({ job, initialDate, onSave, onCancel }: JobFormProps) {
       </div>
 
       {/* Interview Stages Section */}
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-4">
           <SectionHeader title="Interview Stages" />
           <button
             type="button"
             onClick={handleAddInterview}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-transparent rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-transparent rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
           >
             + Add Interview
           </button>
@@ -337,19 +337,19 @@ export function JobForm({ job, initialDate, onSave, onCancel }: JobFormProps) {
       </div>
 
       {/* Additional Details Section */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 sm:gap-4">
           <SectionHeader title="Additional Details" />
           <button
             type="button"
             onClick={() => setShowOptional(!showOptional)}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400"
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400"
           >
             {showOptional ? 'Hide' : 'Show'} Details
           </button>
         </div>
         {showOptional && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <FormSection>
               <OptionalFieldsForm 
                 formData={formData} 
@@ -367,17 +367,17 @@ export function JobForm({ job, initialDate, onSave, onCancel }: JobFormProps) {
       </div>
 
       {/* Form Actions */}
-      <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400"
+          className="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-6 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+          className="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 border border-transparent rounded-md shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
         >
           Save Application
         </button>

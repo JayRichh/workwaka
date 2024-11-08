@@ -1,5 +1,3 @@
-// src/components/Calendar.tsx
-
 import React, { useState, useEffect, Fragment } from 'react';
 import {
   format,
@@ -22,6 +20,9 @@ import {
   CalendarIcon,
   ClockIcon,
   EllipsisVerticalIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ArrowTopRightOnSquareIcon,
 } from '@heroicons/react/24/outline';
 import { Menu, Transition } from '@headlessui/react';
 import { Modal } from './Modal';
@@ -43,18 +44,14 @@ export function Calendar({
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-
   const [isAddEventOpen, setIsAddEventOpen] = useState<boolean>(false);
-  const [isAddInterviewOpen, setIsAddInterviewOpen] = useState<boolean>(
-    false
-  );
+  const [isAddInterviewOpen, setIsAddInterviewOpen] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   useEffect(() => {
     const loadApplicationsAndEvents = () => {
       const apps = storage.getApplications();
       setApplications(apps);
-
       const appEvents = apps.flatMap((app) => app.events || []);
       const standaloneEvents = storage.getEvents();
       setEvents([...appEvents, ...standaloneEvents]);
@@ -84,13 +81,13 @@ export function Calendar({
   const getEventColor = (eventType: CalendarEvent['type']) => {
     switch (eventType) {
       case 'INTERVIEW':
-        return 'bg-accent text-primary border-accent';
+        return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 border-blue-200 dark:border-blue-800';
       case 'FOLLOW_UP':
-        return 'bg-secondary text-primary border-secondary';
+        return 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100 border-purple-200 dark:border-purple-800';
       case 'DEADLINE':
-        return 'bg-secondary text-primary border-secondary';
+        return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 border-red-200 dark:border-red-800';
       default:
-        return 'bg-gray-900 text-white border-gray-700';
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -116,6 +113,32 @@ export function Calendar({
 
   const handleDayClick = (day: Date) => {
     setSelectedDate(day);
+  };
+
+  const downloadICSFile = (event: CalendarEvent) => {
+    const startDate = new Date(event.startDate).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const endDate = event.endDate 
+      ? new Date(event.endDate).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+      : new Date(addMinutes(new Date(event.startDate), 60)).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:${startDate}
+DTEND:${endDate}
+SUMMARY:${event.title}
+DESCRIPTION:${event.description || ''}
+LOCATION:${event.location || ''}
+END:VEVENT
+END:VCALENDAR`;
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.setAttribute('download', `${event.title.replace(/\s+/g, '_')}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleAddEvent = (eventData: Partial<CalendarEvent>) => {
@@ -161,14 +184,15 @@ export function Calendar({
       id: uuidv4(),
       applicationId: job.id,
       type: 'INTERVIEW',
-      title: `${newInterview.type.replace(/_/g, ' ')} Interview`,
+      title: `${newInterview.type.replace(/_/g, ' ')} Interview - ${job.companyName}`,
       startDate: newInterview.scheduledDate,
       endDate: addMinutes(
         parseISO(newInterview.scheduledDate),
         newInterview.duration
       ).toISOString(),
       isAllDay: false,
-      location: newInterview.location,
+      location: newInterview.location || (newInterview.isRemote ? 'Remote Interview' : ''),
+      description: `Interview for ${job.jobTitle} position at ${job.companyName}\n\nNotes: ${newInterview.notes || 'No notes provided'}`,
       interviewStageId: newInterview.id,
     };
 
@@ -189,70 +213,79 @@ export function Calendar({
   };
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg">
+    <div className="p-2 sm:p-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold">
+        <h2 className="text-xl font-semibold">
           {format(currentMonth, 'MMMM yyyy')}
         </h2>
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           <button
             onClick={previousMonth}
-            className="px-3 py-1 text-sm border border-gray-200 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="p-2.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
           >
-            Previous
+            <ChevronLeftIcon className="h-6 w-6" />
           </button>
           <button
             onClick={nextMonth}
-            className="px-3 py-1 text-sm border border-gray-200 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="p-2.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
           >
-            Next
+            <ChevronRightIcon className="h-6 w-6" />
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden shadow">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-          <div
-            key={day}
-            className="bg-gray-100 dark:bg-gray-800 p-2 text-center text-sm font-medium text-gray-600 dark:text-gray-400"
-          >
-            {day}
+      <div className="flex flex-wrap gap-4 mb-6 text-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+          <span>Interview</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-full bg-purple-500"></div>
+          <span>Follow-up</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-full bg-red-500"></div>
+          <span>Deadline</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-7 text-center text-sm mb-2">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, i) => (
+          <div key={i} className="font-medium text-gray-500 dark:text-gray-400 py-2">
+            <span className="hidden sm:inline">{day}</span>
+            <span className="sm:hidden">{day[0]}</span>
           </div>
         ))}
+      </div>
 
+      <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
         {days.map((day) => {
           const dayApplications = getApplicationsForDay(day);
           const dayEvents = getEventsForDay(day);
+          const totalItems = dayApplications.length + dayEvents.length;
+
           return (
             <div
               key={day.toISOString()}
-              className={`min-h-[120px] bg-white dark:bg-gray-800 p-2 ${
+              className={`min-h-[140px] sm:min-h-[160px] bg-white dark:bg-gray-800 p-2 ${
                 isToday(day) ? 'bg-blue-50 dark:bg-blue-900/20' : ''
               } relative`}
               onClick={() => handleDayClick(day)}
             >
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start mb-2">
                 <span
-                  className={`text-sm ${
+                  className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
                     isToday(day)
-                      ? 'font-bold text-blue-600 dark:text-blue-400'
+                      ? 'bg-blue-500 text-white font-bold'
                       : 'text-gray-700 dark:text-gray-300'
                   }`}
                 >
                   {format(day, 'd')}
                 </span>
-                <Menu as="div" className="relative inline-block text-left">
-                  <div>
-                    <Menu.Button
-                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                    >
-                      <EllipsisVerticalIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                    </Menu.Button>
-                  </div>
-
+                <Menu as="div" className="relative">
+                  <Menu.Button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
+                    <EllipsisVerticalIcon className="h-5 w-5" />
+                  </Menu.Button>
                   <Transition
                     as={Fragment}
                     enter="transition ease-out duration-100"
@@ -262,19 +295,21 @@ export function Calendar({
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="origin-top-right absolute right-0 mt-2 w-36 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                    <Menu.Items className="absolute right-0 z-10 mt-1 w-56 rounded-md bg-white dark:bg-gray-700 shadow-lg ring-1 ring-black ring-opacity-5">
                       <div className="py-1">
                         <Menu.Item>
                           {({ active }) => (
                             <button
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setSelectedDate(day);
                                 setIsAddEventOpen(true);
                               }}
                               className={`${
                                 active ? 'bg-gray-100 dark:bg-gray-600' : ''
-                              } w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-gray-100`}
+                              } w-full text-left px-4 py-3 text-sm flex items-center gap-2`}
                             >
+                              <PlusIcon className="h-5 w-5" />
                               Add Event
                             </button>
                           )}
@@ -282,14 +317,16 @@ export function Calendar({
                         <Menu.Item>
                           {({ active }) => (
                             <button
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setSelectedDate(day);
                                 setIsAddInterviewOpen(true);
                               }}
                               className={`${
                                 active ? 'bg-gray-100 dark:bg-gray-600' : ''
-                              } w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-gray-100`}
+                              } w-full text-left px-4 py-3 text-sm flex items-center gap-2`}
                             >
+                              <CalendarIcon className="h-5 w-5" />
                               Add Interview
                             </button>
                           )}
@@ -300,69 +337,55 @@ export function Calendar({
                 </Menu>
               </div>
 
-              <div className="mt-2 space-y-1">
+              <div className={`space-y-2 overflow-y-auto ${totalItems > 0 ? 'mt-3' : ''}`} style={{ maxHeight: '90px' }}>
                 {dayApplications.map((app) => (
                   <button
                     key={app.id}
-                    onClick={() => onSelectApplication(app)}
-                    className="w-full text-left p-1 text-xs rounded hover:bg-gray-50 dark:hover:bg-gray-700 truncate border border-gray-200 dark:border-gray-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectApplication(app);
+                    }}
+                    className="w-full text-left p-2 text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md border border-gray-200 dark:border-gray-600"
                   >
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
-                      {app.jobTitle}
-                    </div>
-                    <div className="text-gray-500 dark:text-gray-400">
-                      {app.companyName}
-                    </div>
+                    <div className="font-medium truncate">{app.jobTitle}</div>
+                    <div className="text-gray-500 dark:text-gray-400 truncate">{app.companyName}</div>
                   </button>
                 ))}
 
                 {dayEvents.map((event) => (
-                  <button
-                    key={event.id}
-                    onClick={() => onSelectEvent?.(event)}
-                    className={`w-full text-left p-1.5 text-xs rounded hover:opacity-80 truncate border ${getEventColor(
-                      event.type
-                    )}`}
-                  >
-                    <div className="font-medium flex items-center gap-1">
-                      {event.type === 'INTERVIEW' && (
-                        <CalendarIcon className="h-3 w-3" />
-                      )}
-                      {event.title}
-                    </div>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <ClockIcon className="h-3 w-3" />
-                      {formatEventTime(event)}
-                    </div>
-                  </button>
+                  <div key={event.id} className="relative group">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectEvent?.(event);
+                      }}
+                      className={`w-full text-left p-2 text-sm rounded-md border ${getEventColor(event.type)}`}
+                    >
+                      <div className="font-medium flex items-center gap-2 truncate">
+                        {event.type === 'INTERVIEW' && <CalendarIcon className="h-4 w-4 flex-shrink-0" />}
+                        {event.title}
+                      </div>
+                      <div className="flex items-center gap-1.5 truncate text-xs mt-1">
+                        <ClockIcon className="h-4 w-4 flex-shrink-0" />
+                        {formatEventTime(event)}
+                      </div>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        downloadICSFile(event);
+                      }}
+                      className="absolute top-1 right-1 p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-black/10 dark:hover:bg-white/10 rounded"
+                      title="Add to Calendar"
+                    >
+                      <ArrowTopRightOnSquareIcon className="h-4 w-4" />
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
           );
         })}
-      </div>
-
-      <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-blue-100 dark:bg-blue-900/20 rounded"></div>
-          <span>Today</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-blue-100 dark:bg-blue-900/20 rounded"></div>
-          <span>Interview</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-gray-100 dark:bg-gray-700 rounded"></div>
-          <span>Follow-up</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-gray-100 dark:bg-gray-700 rounded"></div>
-          <span>Deadline</span>
-        </div>
-        {/* <div className="flex items-center gap-1">
-          <PlusIcon className="h-4 w-4" />
-          <span>Add application</span>
-        </div> */}
       </div>
 
       <Modal

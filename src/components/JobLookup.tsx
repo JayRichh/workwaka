@@ -98,8 +98,8 @@ export function JobLookup({ onSelect, selectedJob }: JobLookupProps) {
   };
 
   return (
-    <div className="relative">
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+    <div className="relative w-full">
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
         <MagnifyingGlassIcon
           className="h-5 w-5 text-gray-400"
           aria-hidden="true"
@@ -111,7 +111,7 @@ export function JobLookup({ onSelect, selectedJob }: JobLookupProps) {
         onChange={handleInputChange}
         onFocus={() => setIsOpen(true)}
         placeholder="Search job applications..."
-        className={`block w-full rounded-md border py-2 pl-10 pr-3 ${
+        className={`block w-full rounded-lg border py-3 pl-11 pr-4 text-base ${
           selectedJob 
             ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20' 
             : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700'
@@ -121,22 +121,22 @@ export function JobLookup({ onSelect, selectedJob }: JobLookupProps) {
         <ul
           ref={dropdownRef}
           onScroll={handleScroll}
-          className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+          className="absolute z-10 mt-2 w-full bg-white dark:bg-gray-700 shadow-lg max-h-[70vh] rounded-lg py-2 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none"
         >
           {displayedJobs.length > 0 ? (
             displayedJobs.map((job) => (
               <li
                 key={job.id}
                 onClick={() => handleJobSelect(job)}
-                className={`cursor-pointer select-none relative py-2 pl-3 pr-9 ${
+                className={`cursor-pointer select-none relative py-3 px-4 ${
                   selectedJob?.id === job.id
                     ? 'bg-blue-500 dark:bg-blue-600 text-white'
                     : 'text-gray-900 dark:text-gray-100'
                 } hover:bg-blue-50 dark:hover:bg-blue-900/50 hover:text-blue-600 dark:hover:text-blue-200`}
               >
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-1">
                   <span
-                    className={`block truncate ${
+                    className={`block truncate text-base ${
                       selectedJob?.id === job.id
                         ? 'font-semibold'
                         : 'font-normal'
@@ -144,13 +144,27 @@ export function JobLookup({ onSelect, selectedJob }: JobLookupProps) {
                   >
                     {job.jobTitle}
                   </span>
-                  <span className={`text-sm ${
-                    selectedJob?.id === job.id
-                      ? 'text-blue-50 dark:text-blue-200'
-                      : 'text-gray-500 dark:text-gray-400'
-                  }`}>
-                    {job.companyName} • {new Date(job.dateModified).toLocaleDateString()}
-                  </span>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                    <span className={`text-sm ${
+                      selectedJob?.id === job.id
+                        ? 'text-blue-50 dark:text-blue-200'
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}>
+                      {job.companyName}
+                    </span>
+                    <span className={`hidden sm:inline text-sm ${
+                      selectedJob?.id === job.id
+                        ? 'text-blue-50 dark:text-blue-200'
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}>•</span>
+                    <span className={`text-sm ${
+                      selectedJob?.id === job.id
+                        ? 'text-blue-50 dark:text-blue-200'
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}>
+                      {new Date(job.dateModified).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
                 {selectedJob?.id === job.id && (
                   <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-white">
@@ -160,7 +174,7 @@ export function JobLookup({ onSelect, selectedJob }: JobLookupProps) {
               </li>
             ))
           ) : (
-            <li className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+            <li className="px-4 py-3 text-base text-gray-500 dark:text-gray-400">
               No jobs found
             </li>
           )}
