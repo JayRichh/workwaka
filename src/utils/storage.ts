@@ -9,23 +9,6 @@ import {
 
 const STORAGE_KEY = 'jobApplications';
 const EVENTS_KEY = 'calendarEvents';
-type SankeyNode = {
-  id: string;
-  type: 'status' | 'stage';
-};
-
-type TransitionMap = {
-  [K in JobStatus]?: {
-    [T in JobStatus]?: number;
-  };
-};
-
-type StageTransition = {
-  sourceStatus: JobStatus;
-  targetStatus: JobStatus;
-  stageId: string;
-  count: number;
-};
 
 export const storage = {
   getApplications: (): JobApplication[] => {
@@ -119,7 +102,7 @@ export const storage = {
   },
 
   addEvent(event: CalendarEvent): void {
-    let events = this.getEvents(); // Use 'this' to refer to storage object
+    let events = this.getEvents();
     events.push(event);
     localStorage.setItem(EVENTS_KEY, JSON.stringify(events));
   },
@@ -141,119 +124,46 @@ export const storage = {
     }
   },
 
-
   getSankeyData: () => {
     const applications = storage.getApplications();
-    const nodes: SankeyNode[] = [];
-    const links: { source: string; target: string; value: number }[] = [];
-
-    // Initialize with all possible job statuses
-    const allStatuses: JobStatus[] = [
-      'WISHLIST', 'EMAIL_INQUIRY', 'APPLIED', 'PHONE_SCREEN',
-      'TECHNICAL', 'ONSITE', 'OFFER', 'REJECTED', 'WITHDRAWN'
-    ];
     
-    // Add status nodes
-    allStatuses.forEach(status => {
-      nodes.push({ id: status, type: 'status' });
-    });
+    if (applications.length === 0) {
+      return { nodes: [], links: [] };
+    }
 
-    // Track interview stages
-    const stageNodes = new Set<string>();
-    const stageTransitions: StageTransition[] = [];
+    // Create a special node for total applications
+    const totalNode = 'Total Applications';
+    const nodes: string[] = [totalNode];
 
-    // Count applications in each status
-    const statusCounts: { [key in JobStatus]?: number } = {};
-    allStatuses.forEach(status => {
-      statusCounts[status] = applications.filter(app => app.status === status).length;
-    });
-
-    // Process applications with interview stages
+    // Count applications by status
+    const statusCounts = new Map<JobStatus, number>();
     applications.forEach(app => {
-      if (app.interviewStages && app.interviewStages.length > 0) {
-        // Add interview stage nodes
-        app.interviewStages.forEach(stage => {
-          const stageId = `STAGE_${stage.type}`;
-          if (!stageNodes.has(stageId)) {
-            stageNodes.add(stageId);
-            nodes.push({ id: stageId, type: 'stage' });
-          }
+      const count = statusCounts.get(app.status) || 0;
+      statusCounts.set(app.status, count + 1);
+    });
 
-          // Track stage transitions
-          const existingTransition = stageTransitions.find(
-            t => t.sourceStatus === app.status && t.stageId === stageId
-          );
+    // Add nodes for statuses that have applications
+    const activeStatuses = Array.from(statusCounts.keys());
+    nodes.push(...activeStatuses);
 
-          if (existingTransition) {
-            existingTransition.count++;
-          } else {
-            stageTransitions.push({
-              sourceStatus: app.status,
-              targetStatus: app.status, // Current status is both source and target for active stages
-              stageId,
-              count: 1
-            });
-          }
+    // Create links from total to each status
+    const links: { source: string; target: string; value: number }[] = [];
+    
+    // Add links from total to each status
+    activeStatuses.forEach(status => {
+      const count = statusCounts.get(status) || 0;
+      if (count > 0) {
+        links.push({
+          source: totalNode,
+          target: status,
+          value: count
         });
       }
     });
 
-    // Add links for applications in each status
-    allStatuses.forEach(status => {
-      const count = statusCounts[status] || 0;
-      if (count > 0) {
-        // For non-final statuses, create links to potential next statuses
-        if (!['OFFER', 'REJECTED', 'WITHDRAWN'].includes(status)) {
-          // Add links to interview stages if they exist
-          const stagesForStatus = stageTransitions.filter(t => t.sourceStatus === status);
-          stagesForStatus.forEach(transition => {
-            links.push({
-              source: status,
-              target: transition.stageId,
-              value: transition.count
-            });
-
-            // Link from stage back to status
-            links.push({
-              source: transition.stageId,
-              target: transition.targetStatus,
-              value: transition.count
-            });
-          });
-
-          // Add direct links to next possible statuses
-          const nextStatuses = allStatuses.filter(s => 
-            allStatuses.indexOf(s) > allStatuses.indexOf(status) &&
-            !['WITHDRAWN'].includes(s)
-          );
-
-          nextStatuses.forEach(nextStatus => {
-            const nextCount = applications.filter(
-              app => app.status === nextStatus
-            ).length;
-
-            if (nextCount > 0) {
-              links.push({
-                source: status,
-                target: nextStatus,
-                value: nextCount
-              });
-            }
-          });
-        }
-      }
-    });
-
-    // Filter out nodes with no connections
-    const usedNodes = new Set<string>();
-    links.forEach(link => {
-      usedNodes.add(link.source);
-      usedNodes.add(link.target);
-    });
-
     return {
-      nodes: nodes.filter(n => usedNodes.has(n.id)).map(n => n.id),
-      links: links.filter(l => l.value > 0)
+      nodes,
+      links: links.filter(link => link.value > 0)
     };
   }
 };

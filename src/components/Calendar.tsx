@@ -359,10 +359,10 @@ export function Calendar({
           <div className="w-3 h-3 bg-gray-100 dark:bg-gray-700 rounded"></div>
           <span>Deadline</span>
         </div>
-        <div className="flex items-center gap-1">
+        {/* <div className="flex items-center gap-1">
           <PlusIcon className="h-4 w-4" />
           <span>Add application</span>
-        </div>
+        </div> */}
       </div>
 
       <Modal
