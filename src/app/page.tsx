@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { Tab } from '@headlessui/react';
 import { JobApplication } from '../types';
 import { JobList } from '../components/JobList';
@@ -123,7 +123,7 @@ export default function Home() {
                 )}
               >
                 {idx === 0 ? (
-                  <JobList onSelect={handleJobSelect} />
+                  <Suspense><JobList onSelect={handleJobSelect} /></Suspense>
                 ) : idx === 1 ? (
                   <Calendar
                     onAddApplication={handleAddNew}
