@@ -15,8 +15,15 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://workwaka.vercel.app"),
   title: "WorkWaka - Job Application Tracker",
   description: "Track and manage your job applications with ease.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "WorkWaka - Job Application Tracker",
+    description: "Track and manage your job applications with ease.",
+    url: "/",
+  },
 };
 
 export default function RootLayout({
